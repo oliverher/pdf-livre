@@ -1,0 +1,33 @@
+# Blueprint do Render (https://render.com) para deploy automatico do backend.
+#
+# Uso: em https://dashboard.render.com/blueprints, "New Blueprint Instance",
+# aponte para este repositorio. O Render le este arquivo e cria o servico
+# sozinho, sem configuracao manual alem das variaveis marcadas "sync: false"
+# abaixo (essas voce preenche direto no painel do Render, nunca aqui nem
+# em chat, para nao ficarem expostas no codigo).
+#
+# Plano "free": adequado para validacao/piloto. Ele desliga apos ~15 min
+# sem uso (primeira requisicao depois demora para religar) e tem 512 MB de
+# RAM - LibreOffice + OpenCV podem apertar esse limite em arquivos grandes;
+# se acontecer erro de memoria em producao, mude "plan: free" para
+# "plan: starter" no painel do Render.
+
+services:
+  - type: web
+    name: pdf-livre-backend
+    runtime: docker
+    plan: free
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /api/saude
+    envVars:
+      - key: PPTLIVRE_MAX_MB
+        value: "60"
+      - key: PPTLIVRE_TETO_DIARIO_USD
+        value: "5.0"
+      - key: PPTLIVRE_VISION_MODEL
+        value: "claude-opus-4-8"
+      # Opcional: so preencha se quiser ligar a analise por IA de visao.
+      # Sem valor, o app funciona normalmente no modo convencional.
+      - key: ANTHROPIC_API_KEY
+        sync: false

@@ -69,6 +69,27 @@ Sem preencher `ANTHROPIC_API_KEY`, o app funciona 100% no modo convencional
    lugar, revogue-a imediatamente no console e gere outra).
 3. Ajuste `PPTLIVRE_TETO_DIARIO_USD` conforme o orçamento aceitável.
 
+## Deploy (link público)
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/oliverher/pdf-livre)
+
+O botão acima cria o serviço automaticamente a partir de `render.yaml`
+neste repositório — não precisa configurar nada manualmente no painel,
+além de:
+
+1. Entrar/criar conta no Render e autorizar o acesso a este repositório
+   (isso é feito por você, no site do Render — nenhuma credencial passa
+   por aqui).
+2. Se quiser ligar a IA de visão, colar a chave da Anthropic no campo
+   `ANTHROPIC_API_KEY` que o Render vai pedir durante a criação do
+   Blueprint (direto no painel do Render, nunca em chat ou commit).
+   Deixe em branco para manter o modo convencional, sem custo.
+
+Depois de criado, o Render publica uma URL pública tipo
+`https://pdf-livre-backend.onrender.com` — é esse o link a compartilhar.
+No plano gratuito, o serviço "dorme" após ~15 min sem uso e a primeira
+requisição seguinte demora um pouco mais para responder (cold start).
+
 ## Segurança e dados (RNF16/RNF18/RNF19)
 
 - O arquivo original é apagado do servidor assim que o processamento
