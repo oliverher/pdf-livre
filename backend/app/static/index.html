@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PPT Livre</title>
+<style>
+:root{
+  --papel:#F7F8F6; --papel2:#EDEFEA; --tinta:#16191F; --fraca:#5A6169;
+  --regua:#DCE0D9; --slate:#23303A;
+  --nativo:#0E7C74; --misto:#B4722A; --achatado:#A33A2E;
+  --mono: ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+  --sans: system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--papel);color:var(--tinta);font-family:var(--sans);
+  font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:920px;margin:0 auto;padding:0 20px 96px}
+
+header{border-bottom:1px solid var(--regua);padding:30px 0 22px;margin-bottom:30px;
+  display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.marca{font-family:var(--mono);font-size:24px;font-weight:600;letter-spacing:-.02em;
+  background:none;border:0;color:var(--tinta);cursor:pointer;padding:0}
+.marca:hover{color:var(--nativo)}
+.marca .liv{color:var(--nativo)}
+header p{margin:0;color:var(--fraca);font-size:13.5px;max-width:44ch}
+
+.abas{display:flex;gap:4px;margin-bottom:22px;border-bottom:1px solid var(--regua)}
+.aba{font-family:var(--mono);font-size:13px;background:none;border:0;
+  padding:10px 16px;cursor:pointer;color:var(--fraca);border-bottom:2px solid transparent;margin-bottom:-1px}
+.aba[aria-selected=true]{color:var(--tinta);border-bottom-color:var(--slate)}
+.aba:focus-visible{outline:2px solid var(--slate);outline-offset:2px}
+
+.dropzone{border:1.5px dashed var(--regua);background:var(--papel2);border-radius:4px;
+  padding:44px 24px;text-align:center;cursor:pointer;transition:border-color .15s,background .15s}
+.dropzone:hover,.dropzone.ativo{border-color:var(--slate);background:#E7EAE4}
+.dropzone:focus-visible{outline:2px solid var(--slate);outline-offset:3px}
+.dropzone strong{display:block;font-family:var(--mono);font-size:15px;margin-bottom:6px}
+.dropzone span{color:var(--fraca);font-size:13.5px}
+input[type=file]{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.aviso{margin-top:14px;font-size:12.5px;color:var(--fraca);border-left:2px solid var(--regua);padding-left:12px}
+
+.oculto{display:none}
+.erro{margin-top:18px;border:1px solid var(--achatado);border-radius:3px;
+  padding:14px 16px;background:#FBF1EF;font-size:14px}
+.erro b{font-family:var(--mono);display:block;margin-bottom:4px}
+
+/* progresso: assinatura visual */
+.prog{margin-top:30px}
+.prog .trilho{height:8px;background:var(--papel2);border-radius:99px;overflow:hidden;border:1px solid var(--regua)}
+.prog .barra{height:100%;width:0;background:var(--nativo);border-radius:99px;
+  transition:width .4s cubic-bezier(.3,.7,.3,1)}
+.prog .etapa{font-family:var(--mono);font-size:13px;color:var(--fraca);margin-top:12px;
+  display:flex;justify-content:space-between}
+.prog .etapa b{color:var(--tinta);font-weight:600}
+@media (prefers-reduced-motion:reduce){.prog .barra{transition:none}}
+
+h2{font-family:var(--mono);font-size:14px;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--fraca);font-weight:600;margin:32px 0 14px}
+button.acao{font-family:var(--mono);font-size:14px;background:var(--slate);color:#fff;
+  border:0;border-radius:3px;padding:12px 22px;cursor:pointer}
+button.acao:hover{background:#16212A}
+button.acao:disabled{background:var(--regua);color:var(--fraca);cursor:not-allowed}
+button.acao:focus-visible{outline:2px solid var(--tinta);outline-offset:2px}
+.secundario{background:transparent;color:var(--tinta);border:1px solid var(--regua);margin-left:10px}
+.secundario:hover{background:var(--papel2)}
+.opt{display:flex;gap:10px;align-items:flex-start;font-size:14px;margin-bottom:10px}
+.opt input{margin-top:4px;accent-color:var(--slate)}
+.opt span{color:var(--fraca);font-size:13px}
+
+.resultado{border:1px solid var(--nativo);border-radius:3px;padding:18px;margin-top:24px}
+.resultado h3{font-family:var(--mono);font-size:14px;margin:0 0 12px}
+.grade{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin-bottom:16px}
+.card{background:var(--papel2);border-radius:3px;padding:12px 14px}
+.card .n{font-family:var(--mono);font-size:26px;font-weight:600;line-height:1}
+.card .r{font-size:11.5px;color:var(--fraca);margin-top:4px;text-transform:uppercase;letter-spacing:.05em}
+.nota{font-size:13px;color:var(--fraca);margin:12px 0 16px;border-left:2px solid var(--regua);padding-left:12px}
+
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:6px}
+th{font-family:var(--mono);font-size:11px;letter-spacing:.09em;text-transform:uppercase;
+  text-align:left;color:var(--fraca);border-bottom:1px solid var(--tinta);padding:8px 10px 8px 0;font-weight:600}
+td{border-bottom:1px solid var(--regua);padding:9px 10px 9px 0;vertical-align:top}
+td.num,th.num{text-align:right;font-family:var(--mono);padding-right:14px}
+.tag{font-family:var(--mono);font-size:11px;padding:2px 7px;border-radius:2px;color:#fff}
+.tag.NATIVO{background:var(--nativo)}.tag.MISTO{background:var(--misto)}.tag.ACHATADO{background:var(--achatado)}
+.obj{font-family:var(--mono);font-size:11.5px;color:var(--fraca)}
+
+footer{border-top:1px solid var(--regua);margin-top:56px;padding-top:20px;font-size:12.5px;color:var(--fraca)}
+footer code{font-family:var(--mono);font-size:11.5px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div>
+    <button class="marca" id="btnMarca" title="Voltar ao início">PPT <span class="liv">Livre</span></button>
+    <p>Envie uma apresentação, PDF ou imagem e receba um PowerPoint com textos e formas editáveis.</p>
+  </div>
+</header>
+
+<div class="abas" role="tablist">
+  <button class="aba" id="abaReconstruir" role="tab" aria-selected="true">Reconstruir</button>
+  <button class="aba" id="abaLiberar" role="tab" aria-selected="false">Liberar PPTX</button>
+</div>
+
+<!-- painel reconstruir -->
+<section id="painelReconstruir">
+  <div class="dropzone" id="zonaR" role="button" tabindex="0" aria-label="Selecionar arquivo">
+    <strong id="rotuloR">Escolha um arquivo</strong>
+    <span>PPTX, PDF, PNG, JPG, JPEG ou WebP &middot; ou arraste &middot; até 60 MB</span>
+  </div>
+  <input type="file" id="entradaR" accept=".pptx,.potx,.pdf,.png,.jpg,.jpeg,.webp">
+  <label class="opt" style="margin-top:14px">
+    <input type="checkbox" id="oDividir" checked>
+    <span><b>Dividir conteúdo denso</b> em vários slides quando melhorar a legibilidade.</span>
+  </label>
+  <p class="aviso">O arquivo é processado no servidor e apagado em seguida. O
+     resultado fica disponível por 20 minutos. Não envie documento sigiloso
+     em uma instância pública.</p>
+
+  <div id="progR" class="prog oculto">
+    <div class="trilho"><div class="barra" id="barraR"></div></div>
+    <div class="etapa"><b id="etapaR">Iniciando</b><span id="pctR">0%</span></div>
+  </div>
+  <div id="erroR" class="erro oculto"></div>
+  <div id="resultadoR" class="resultado oculto"></div>
+</section>
+
+<!-- painel liberar -->
+<section id="painelLiberar" class="oculto">
+  <div class="dropzone" id="zonaL" role="button" tabindex="0" aria-label="Selecionar PPTX">
+    <strong id="rotuloL">Escolha um arquivo .pptx</strong>
+    <span>somente PPTX &middot; mede a editabilidade e destrava objetos</span>
+  </div>
+  <input type="file" id="entradaL" accept=".pptx,.potx">
+  <div id="erroL" class="erro oculto"></div>
+  <div id="medindoL" class="prog oculto"><div class="etapa"><b>Medindo o arquivo…</b></div></div>
+  <div id="painelMedida" class="oculto">
+    <h2>Leitura por slide</h2>
+    <table><thead><tr><th class="num">#</th><th>classe</th><th class="num">IE</th>
+      <th class="num">raster</th><th class="num">chars</th><th>objetos</th></tr></thead>
+      <tbody id="linhasL"></tbody></table>
+    <h2>Liberar</h2>
+    <label class="opt"><input type="checkbox" id="oDestravar" checked>
+      <span><b>Destravar objetos.</b> Remove restrições de seleção, movimento e edição.</span></label>
+    <label class="opt"><input type="checkbox" id="oDesagrupar" checked>
+      <span><b>Desagrupar.</b> Achata grupos mantendo cada objeto no lugar.</span></label>
+    <button class="acao" id="btnLiberar">Liberar arquivo</button>
+    <div id="resultadoL" class="resultado oculto"></div>
+  </div>
+</section>
+
+<footer>
+  Modo convencional (sem IA): detecção por visão computacional e OCR em português.
+  Reconhecimento inteligente por modelo de visão fica para uma etapa futura.
+  Ilustrações complexas são preservadas como imagem; textos e estruturas viram
+  editáveis. Verificação: <code>/api/saude</code>.
+</footer>
+
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+
+// ---- navegacao entre abas + botao marca (RF26) ----
+function irPara(aba){
+  const rec = aba === "reconstruir";
+  $("abaReconstruir").setAttribute("aria-selected", rec);
+  $("abaLiberar").setAttribute("aria-selected", !rec);
+  $("painelReconstruir").classList.toggle("oculto", !rec);
+  $("painelLiberar").classList.toggle("oculto", rec);
+}
+$("abaReconstruir").onclick = () => irPara("reconstruir");
+$("abaLiberar").onclick = () => irPara("liberar");
+$("btnMarca").onclick = () => { limparTudo(); irPara("reconstruir"); window.scrollTo({top:0,behavior:"smooth"}); };
+
+function limparTudo(){
+  ["entradaR","entradaL"].forEach(id => $(id).value = "");
+  $("rotuloR").textContent = "Escolha um arquivo";
+  $("rotuloL").textContent = "Escolha um arquivo .pptx";
+  ["progR","erroR","resultadoR","erroL","medindoL","painelMedida","resultadoL"]
+    .forEach(id => $(id).classList.add("oculto"));
+  arquivoR = arquivoL = null;
+}
+
+// ---- utilidades de dropzone ----
+function ligarZona(zona, input, aoReceber){
+  zona.addEventListener("click", () => input.click());
+  zona.addEventListener("keydown", e => {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); input.click(); }
+  });
+  ["dragenter","dragover"].forEach(ev => zona.addEventListener(ev, e => {
+    e.preventDefault(); zona.classList.add("ativo");
+  }));
+  ["dragleave","drop"].forEach(ev => zona.addEventListener(ev, e => {
+    e.preventDefault(); zona.classList.remove("ativo");
+  }));
+  zona.addEventListener("drop", e => { if (e.dataTransfer.files.length) aoReceber(e.dataTransfer.files[0]); });
+  input.addEventListener("change", () => { if (input.files.length) aoReceber(input.files[0]); });
+}
+
+// ================= RECONSTRUIR =================
+let arquivoR = null;
+ligarZona($("zonaR"), $("entradaR"), f => { arquivoR = f; $("rotuloR").textContent = f.name; iniciarReconstrucao(); });
+
+async function iniciarReconstrucao(){
+  ["erroR","resultadoR"].forEach(id => $(id).classList.add("oculto"));
+  $("progR").classList.remove("oculto");
+  atualizarProg(0, "Enviando");
+
+  const fd = new FormData();
+  fd.append("arquivo", arquivoR);
+  fd.append("dividir_densos", $("oDividir").checked);
+  let jobId;
+  try {
+    const r = await fetch("/api/reconstruir", { method:"POST", body:fd });
+    const j = await r.json();
+    if (!r.ok) return mostrarErro("erroR", j.detail || "Erro no servidor.", "progR");
+    jobId = j.job_id;
+  } catch(e){ return mostrarErro("erroR","O servidor não respondeu.","progR"); }
+
+  const timer = setInterval(async () => {
+    let j;
+    try { j = await (await fetch("/api/progresso/"+jobId)).json(); }
+    catch(e){ clearInterval(timer); return mostrarErro("erroR","Falha ao consultar o progresso.","progR"); }
+    atualizarProg(j.pct, j.etapa);
+    if (j.pronto){
+      clearInterval(timer);
+      $("progR").classList.add("oculto");
+      if (j.erro) return mostrarErro("erroR", j.erro);
+      renderResultadoR(j.resultado);
+    }
+  }, 700);
+}
+
+function atualizarProg(pct, etapa){
+  $("barraR").style.width = pct + "%";
+  $("pctR").textContent = pct + "%";
+  $("etapaR").textContent = etapa;
+}
+
+function renderResultadoR(res){
+  const r = res.relatorio;
+  const rotaTxt = { vetorial:"reconstrução vetorial (texto preservado editável)",
+                    visao:"reconstrução por visão (OCR + formas)" }[r.rota] || r.rota;
+  const objetos = r.objetos != null ? r.objetos
+    : ((r.formas||0)+(r.caixas_texto||0)+(r.imagens||0));
+  const textos = r.textos != null ? r.textos : (r.caixas_texto||0);
+  $("resultadoR").innerHTML = `
+    <h3>Pronto</h3>
+    <div class="grade">
+      <div class="card"><div class="n">${r.slides ?? r.paginas ?? "—"}</div><div class="r">slides</div></div>
+      <div class="card"><div class="n">${objetos}</div><div class="r">objetos</div></div>
+      <div class="card"><div class="n">${textos}</div><div class="r">textos</div></div>
+      <div class="card"><div class="n">${(r.indice_editabilidade ?? 0).toFixed(2)}</div><div class="r">editabilidade</div></div>
+    </div>
+    <p class="nota">Rota: ${rotaTxt}. Origem: ${res.formato_origem}.
+      ${r.paginas_referencia ? "Cada página reconstruída vem com um slide de referência com o original limpo." : ""}
+      ${r.paginas_divididas ? " Conteúdo denso foi dividido em seções." : ""}</p>
+    <a href="/api/download/${res.download_id}" download>
+      <button class="acao">Baixar ${res.nome_saida}</button></a>
+    <button class="acao secundario" onclick="marcaReset()">Converter outro</button>`;
+  $("resultadoR").classList.remove("oculto");
+  $("resultadoR").scrollIntoView({behavior:"smooth", block:"nearest"});
+}
+function marcaReset(){ limparTudo(); window.scrollTo({top:0,behavior:"smooth"}); }
+
+// ================= LIBERAR =================
+let arquivoL = null;
+ligarZona($("zonaL"), $("entradaL"), f => { arquivoL = f; $("rotuloL").textContent = f.name; analisar(); });
+
+async function analisar(){
+  ["erroL","painelMedida","resultadoL"].forEach(id => $(id).classList.add("oculto"));
+  $("medindoL").classList.remove("oculto");
+  const fd = new FormData(); fd.append("arquivo", arquivoL);
+  try {
+    const r = await fetch("/api/analisar", { method:"POST", body:fd });
+    const j = await r.json();
+    $("medindoL").classList.add("oculto");
+    if (!r.ok) return mostrarErro("erroL", j.detail || "Erro no servidor.");
+    renderMedida(j);
+  } catch(e){ $("medindoL").classList.add("oculto"); mostrarErro("erroL","O servidor não respondeu."); }
+}
+
+function renderMedida(r){
+  const tb = $("linhasL"); tb.innerHTML = "";
+  r.slides.forEach(s => {
+    const objs = Object.entries(s.objetos).map(([k,v])=>`${k}=${v}`).join(", ") || "—";
+    const tr = s.travas.length ? ` · ${s.travas.length} travado(s)` : "";
+    tb.insertAdjacentHTML("beforeend", `<tr>
+      <td class="num">${s.slide}</td>
+      <td><span class="tag ${s.classe}">${s.classe}</span></td>
+      <td class="num">${s.indice_editabilidade.toFixed(2)}</td>
+      <td class="num">${(s.cobertura_raster*100).toFixed(0)}%</td>
+      <td class="num">${s.caracteres_nativos}</td>
+      <td class="obj">${objs}${tr}</td></tr>`);
+  });
+  $("painelMedida").classList.remove("oculto");
+}
+
+$("btnLiberar").addEventListener("click", async () => {
+  if (!arquivoL) return;
+  const b = $("btnLiberar"); b.disabled = true; b.textContent = "Liberando";
+  const fd = new FormData();
+  fd.append("arquivo", arquivoL);
+  fd.append("destravar", $("oDestravar").checked);
+  fd.append("desagrupar", $("oDesagrupar").checked);
+  try {
+    const r = await fetch("/api/liberar", { method:"POST", body:fd });
+    const j = await r.json();
+    if (!r.ok){ mostrarErro("erroL", j.detail || "Erro no servidor."); return; }
+    const o = j.operacoes;
+    const ganho = j.depois.indice_editabilidade_global - j.antes.indice_editabilidade_global;
+    $("resultadoL").innerHTML = `
+      <h3>Arquivo liberado</h3>
+      <p class="nota">${o.destravadas} trava(s) removida(s) &middot;
+        ${o.grupos_achatados} grupo(s) achatado(s), ${o.shapes_liberados} objeto(s) soltos &middot;
+        editabilidade ${j.antes.indice_editabilidade_global.toFixed(2)} → ${j.depois.indice_editabilidade_global.toFixed(2)}
+        (${ganho>=0?"+":""}${ganho.toFixed(2)})</p>
+      <a href="/api/download/${j.download_id}" download>
+        <button class="acao">Baixar ${j.nome_saida}</button></a>`;
+    $("resultadoL").classList.remove("oculto");
+    $("resultadoL").scrollIntoView({behavior:"smooth", block:"nearest"});
+  } catch(e){ mostrarErro("erroL","O servidor não respondeu."); }
+  finally { b.disabled = false; b.textContent = "Liberar arquivo"; }
+});
+
+function mostrarErro(id, msg, esconder){
+  if (esconder) $(esconder).classList.add("oculto");
+  $(id).innerHTML = "<b>Não deu para continuar</b>" + msg;
+  $(id).classList.remove("oculto");
+}
+</script>
+</body>
+</html>

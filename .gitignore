@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+env/
+
+# Segredos - NUNCA versionar chaves reais
+.env
+.env.local
+backend/.env
+
+# Arquivos de trabalho/temporarios gerados em runtime
+*.log
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
+
+# Supabase CLI (se o usuario rodar `supabase init` localmente)
+supabase/.branches/
+supabase/.temp/
