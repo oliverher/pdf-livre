@@ -220,10 +220,28 @@ async function iniciarReconstrucao(){
     jobId = j.job_id;
   } catch(e){ return mostrarErro("erroR","O servidor não respondeu.","progR"); }
 
+  // Uma unica falha de rede no polling (comum em instancias gratuitas, que
+  // podem ter uma variacao momentanea de latencia) nao deve derrubar a
+  // conversao inteira: so desiste depois de varias tentativas seguidas
+  // falhando, sinal de que o servidor realmente caiu.
+  const MAX_FALHAS_SEGUIDAS = 8;
+  let falhasSeguidas = 0;
   const timer = setInterval(async () => {
     let j;
-    try { j = await (await fetch("/api/progresso/"+jobId)).json(); }
-    catch(e){ clearInterval(timer); return mostrarErro("erroR","Falha ao consultar o progresso.","progR"); }
+    try {
+      const resp = await fetch("/api/progresso/"+jobId);
+      if (!resp.ok) throw new Error("http " + resp.status);
+      j = await resp.json();
+      falhasSeguidas = 0;
+    } catch(e){
+      falhasSeguidas++;
+      if (falhasSeguidas < MAX_FALHAS_SEGUIDAS) return; // tenta de novo no proximo tick
+      clearInterval(timer);
+      return mostrarErro("erroR",
+        "Perdemos a conexão com o servidor durante o processamento. " +
+        "Se a instância estava inativa, ela pode ter demorado para acordar — tente novamente.",
+        "progR");
+    }
     atualizarProg(j.pct, j.etapa);
     if (j.pronto){
       clearInterval(timer);
