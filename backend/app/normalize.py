@@ -26,8 +26,6 @@ FORMATOS_IMAGEM = (".png", ".jpg", ".jpeg", ".webp")
 FORMATOS_DOC = (".pdf", ".pptx", ".potx")
 FORMATOS_ACEITOS = FORMATOS_IMAGEM + FORMATOS_DOC
 
-SOFFICE = "/mnt/skills/public/pptx/scripts/office/soffice.py"
-
 
 def extensao_aceita(nome):
     return (nome or "").lower().endswith(FORMATOS_ACEITOS)
@@ -54,11 +52,19 @@ def _pdf_para_imagens(caminho_pdf, dpi, paginas_max):
 
 
 def _pptx_para_pdf(caminho_pptx, dir_saida):
-    subprocess.run(
-        ["python3", SOFFICE, "--headless", "--convert-to", "pdf",
-         "--outdir", dir_saida, caminho_pptx],
-        check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-        timeout=180)
+    # Perfil de usuario isolado por chamada: o LibreOffice trava o perfil
+    # padrao, entao duas conversoes concorrentes no mesmo container (dois
+    # uploads simultaneos) travariam uma na outra sem isso.
+    with tempfile.TemporaryDirectory() as perfil:
+        resultado = subprocess.run(
+            ["soffice", "--headless", "--norestore",
+             f"-env:UserInstallation=file://{perfil}",
+             "--convert-to", "pdf", "--outdir", dir_saida, caminho_pptx],
+            capture_output=True, text=True, timeout=180)
+    if resultado.returncode != 0:
+        raise ValueError(
+            "Falha ao converter o PPTX via LibreOffice: "
+            f"{resultado.stderr.strip() or resultado.stdout.strip() or 'erro desconhecido'}")
     pdfs = list(Path(dir_saida).glob("*.pdf"))
     if not pdfs:
         raise ValueError("Falha ao converter o PPTX. Arquivo pode estar corrompido.")
